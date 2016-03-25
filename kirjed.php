@@ -1,35 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="et">
 <head>
-        <meta charset="utf-8">
-        <title>Kasutajad</title>
+    <meta charset="utf-8">
+    <title>Kasutajad</title>
 </head>
 <body>
-        <?php
-        require "db-api.php";
-        $kasutajad = koonduslaager();
+	<h3>Kasutajad</h3> <br>
+	<a href="/~ardo.liivamagi/progreee/form.html">Registreerima</a> <br>
+    <?php
+    require "db-api.php";
+    $kasutajad = kuva_kasutajad();
 
-        $kogutoodang = '<table>';
-        foreach ($kasutajad as $kasutaja) {
-          $kogutoodang .= '
-                <tr>
-                  <td>' . $kasutaja["id"] . '</td>
-                  <td>
-                        <img src="db/' . $kasutaja["id"] . '/pilt.jpg" height="30" width="30">
-                  </td>
-                  <td>' . $kasutaja["lname"] . '</td>
-                  <td>
-                        <a href="yksikkirje.php?id=' .
-                        $kasutaja["id"] . '">Vaade</a>
-                        <a href="muuda.php?id=' .
-                        $kasutaja["id"] . '">Muuda</a>
-                        <a href="kustuta.php?id=' .
-                        $kasutaja["id"] . '">Kustuta</a>
-                  </td>
-                </tr>';
-        }
-        $kogutoodang .= '</table>';
-        print $kogutoodang;
-        ?>
+    $i = 1;
+    $html = '<table>';
+    foreach ($kasutajad as $kasutaja) {
+      $html .= '
+            <tr>
+              <td>' . $i++ . '</td>
+              <td>
+                    <img src="db/' . $kasutaja["id"] . '/pilt.jpg" height="30" width="30">
+              </td>
+              <td>' . $kasutaja["uname"] . '</td>
+              <td>
+                    <a href="yksikkirje.php?id=' .
+                    $kasutaja["id"] . '">Vaade</a>
+                    <a href="muuda.php?id=' .
+                    $kasutaja["id"] . '">Muuda</a>
+                    <a href="kustuta.php?id=' .
+                    $kasutaja["id"] . '">Kustuta</a>
+              </td>
+            </tr>';
+    }
+    $html .= '</table>';
+    print $html;
+    ?>
 </body>
 </html>
