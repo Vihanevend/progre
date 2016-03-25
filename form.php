@@ -3,7 +3,7 @@
         error_reporting(E_ALL);
 
         require "db-api.php";
-        $ankeet = array(
+        $andmed = array(
                 "uname" => $_POST['uname'],
 				"pword" => $_POST['pword'],
                 "fname" => $_POST['fname'],
@@ -14,16 +14,13 @@
                 "pilt" => $_FILES['img']['tmp_name']);
 
         if (isset($_GET["id"])) {
-                $ankeet["id"] = $_GET["id"];
-                $ankeet["aeg"] = $_POST['aeg'];
-                muutmine($ankeet);
+                $andmed["id"] = $_GET["id"];
+                muuda($andmed);
         }
         else {
-                loomine($ankeet);
+                registreeri($andmed);
         }
 
-        header("Location:http://robert.vkhk.ee/~ardo.liivamagi/progre/kirjed.php");
+        header("Location:http://robert.vkhk.ee/~ardo.liivamagi/progreee/kirjed.php");
         die();
-
-
 ?>
