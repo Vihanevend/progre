@@ -1,122 +1,99 @@
 <?php
-        date_default_timezone_set('Europe/Tallinn');
+    date_default_timezone_set('Europe/Tallinn');
 
-        ini_set('display_errors',1);
-        error_reporting(E_ALL);
+    ini_set('display_errors',1);
+    error_reporting(E_ALL);
 
-        function loomine($kasutajainfo) {
-                $username = $kasutajainfo["uname"];
-				$pword = $kasutajainfo["pword"];
-                $fname = $kasutajainfo["fname"];
-                $lname = $kasutajainfo["lname"];
-                $email = $kasutajainfo["email"];
-				$sugu = $kasutajainfo["sugu"];
-                $markused = $kasutajainfo["markused"];
-                $file = $kasutajainfo["pilt"];
-				
-                $kodurada = "./db";
-                $kaustad = glob($kodurada . "/*", GLOB_ONLYDIR);
-                if (count($kaustad) != 0) {
-                        $praemax = "";
-                        foreach ($kaustad as $kaust) {
-                                if (basename($kaust) > $praemax)
-                                {
-                                $praemax = basename($kaust);
-                                }
-                        }
-                        $id = $praemax + 1;
-                }
-                else {
-                        $id = 0;
-                }
-
-                $kaust = 'db/'.$id;
-                if ( !file_exists($kaust) ){
-                        $vana = umask(0);
-                        mkdir ($kaust, 0777, true);
-                        umask($vana);
-                }
-
-                $aeg = time();
-
-                $kasutajainfo = fopen($kaust.'/ankeet.json','w');
-                $ankeet[] = array(
-                "id" => $id,
-                "uname" => $username,
-				"pword" => $pword,
-                "fname" => $fname,
-                "lname" => $lname,
-                "email" => $email,
-				"sugu" => $sugu,
-                "markused" => $markused,
-                "aeg" => $aeg);
-	
-		
-                move_uploaded_file($file, $kaust.'/pilt.jpg');
-                fwrite($kasutajainfo, json_encode($ankeet));
-                fclose($kasutajainfo);
+    function registreeri($kasutajainfo) {
+        $username = $kasutajainfo["uname"];
+    	$pword = $kasutajainfo["pword"];
+        $fname = $kasutajainfo["fname"];
+        $lname = $kasutajainfo["lname"];
+        $email = $kasutajainfo["email"];
+    	$sugu = $kasutajainfo["sugu"];
+        $markused = $kasutajainfo["markused"];
+        $file = $kasutajainfo["pilt"];
+    	
+        $aeg = time();
+        $kaust = 'db/'. $aeg;
+        if ( !file_exists($kaust) ){
+            $vana = umask(0);
+            mkdir ($kaust, 0777, true);
+            umask($vana);
         }
 
-        function muutmine($kasutajainfo) {
-                $id = $kasutajainfo["id"];
-                $username = $kasutajainfo["uname"];
-				$pword = $kasutajainfo["pword"];
-                $fname = $kasutajainfo["fname"];
-                $lname = $kasutajainfo["lname"];
-                $email = $kasutajainfo["email"];
-				$sugu = $kasutajainfo["sugu"];
-                $markused = $kasutajainfo["markused"];
-                $aeg = strtotime(str_replace('/', '-', $kasutajainfo["aeg"]));
-                $file = $kasutajainfo["pilt"];
+        $kasutajainfo = fopen($kaust . '/andmed.json', 'w');
+        $andmed = array(
+            "id" => $aeg,
+            "uname" => $username,
+        	"pword" => $pword,
+            "fname" => $fname,
+            "lname" => $lname,
+            "email" => $email,
+        	"sugu" => $sugu,
+            "markused" => $markused);
 
-                $kodurada = "./db/$id";
 
-                $kasutajainfo = fopen($kodurada.'/ankeet.json','w');
-                $ankeet[] = array(
-                        "id" => $id,
-                        "uname" => $username,
-						"pword" => $pword,
-                        "fname" => $fname,
-                        "lname" => $lname,
-                        "email" => $email,
-						"sugu" => $sugu,
-                        "markused" => $markused,
-                        "aeg" => $aeg);
+        move_uploaded_file($file, $kaust . '/pilt.jpg');
+        fwrite($kasutajainfo, json_encode($andmed));
+        fclose($kasutajainfo);
+    }
 
-                move_uploaded_file($file, $kodurada.'/pilt.jpg');
-                fwrite($kasutajainfo, json_encode($ankeet));
-                fclose($kasutajainfo);
+    function muuda($kasutajainfo) {
+        $id = $kasutajainfo["id"];
+        $username = $kasutajainfo["uname"];
+        $pword = $kasutajainfo["pword"];
+        $fname = $kasutajainfo["fname"];
+        $lname = $kasutajainfo["lname"];
+        $email = $kasutajainfo["email"];
+        $sugu = $kasutajainfo["sugu"];
+        $markused = $kasutajainfo["markused"];
+        $file = $kasutajainfo["pilt"];
+
+        $kaust = "./db/$id";
+        $kasutajainfo = fopen($kaust . '/andmed.json','w');
+        $andmed = array(
+            "id" => $id,
+            "uname" => $username,
+            "pword" => $pword,
+            "fname" => $fname,
+            "lname" => $lname,
+            "email" => $email,
+            "sugu" => $sugu,
+            "markused" => $markused);
+
+        move_uploaded_file($file, $kaust . '/pilt.jpg');
+        fwrite($kasutajainfo, json_encode($andmed));
+        fclose($kasutajainfo);
+    }
+
+    function kuva_yksikkasutaja($id) {
+        $json = file_get_contents("./db/$id/andmed.json");
+        $kasutajainfo = json_decode($json, true);
+        $kasutajainfo["id"] = strftime("%d/%m/%Y %H:%M:%S", $kasutajainfo["id"]);
+        return $kasutajainfo;
+    }
+
+    function kuva_kasutajad() {
+        $kasutajad = [];
+        $i = 0;
+        foreach (glob('./db/*', GLOB_ONLYDIR) as $kaust) {
+            $json = file_get_contents("$kaust/andmed.json");
+            $kasutajainfo = json_decode($json, true);
+            $kasutajad[$i] = $kasutajainfo;
+            $i++;
         }
-
-  function profiilikuva($id) {
-	  
-    $dataPath = "./db/$id/ankeet.json";
-    $json = file_get_contents($dataPath);
-    $kasutajainfo = json_decode($json, true);
-        $kasutajainfo = $kasutajainfo[0];
-    $kasutajainfo["aeg"] = strftime("%d/%m/%Y %H:%M", $kasutajainfo["aeg"]);
-    return $kasutajainfo;
-  }
-
-  function koonduslaager() {
-    $kasutajad = [];
-    $i = 0;
-
-    foreach (glob('./db/*', GLOB_ONLYDIR) as $db) {
-                $id = filter_var($db, FILTER_SANITIZE_NUMBER_INT);
-                $kasutajad[$i] = profiilikuva($id);
-                $i++;
+        return $kasutajad;
     }
-    return $kasutajad;
-  }
-  function kustuta($id) {
-    $kodurada = "./db/$id";
-    if (is_dir($kodurada)) {
-      $files = glob($kodurada . "/*");
-      foreach ($files as $file) {
-        unlink($file);
-      }
-      rmdir($kodurada);
+
+    function kustuta($id) {
+        $kaust = "./db/$id";
+        if (is_dir($kaust)) {
+            $failid = glob($kaust . "/*");
+            foreach ($failid as $fail) {
+                unlink($fail);
+            }
+            rmdir($kaust);
+        }
     }
-  }
 ?>
