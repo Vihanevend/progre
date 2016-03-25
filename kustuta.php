@@ -1,7 +1,18 @@
-<?php
-        require "db-api.php";
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="utf-8">
+    <title>Kustutamine</title>
+</head>
+<body>
+		<h3>Kasutaja edukalt eemaldatud!</h3>
+		<a href="/~ardo.liivamagi/progreee/kirjed.php">Kasutajad</a> <br>
 
-        kustuta($_GET["id"]);
+		<?php
+				require "db-api.php";
 
-        header("Location:http://robert.vkhk.ee/~ardo.liivamagi/progre/kirjed.php");
-        die();
+				kustuta($_GET["id"]);
+		?>
+
+</body>
+</html>           
